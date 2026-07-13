@@ -1,1 +1,1 @@
-# retail-news-bot
+#news-bot
