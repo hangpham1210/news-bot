@@ -1,0 +1,18 @@
+# Virtual Environment
+.venv/
+
+# Environment variables (chứa token, API key)
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# VS Code (không bắt buộc)
+.vscode/
+
+# Logs
+logs/
