@@ -7,19 +7,29 @@ import trafilatura
 from bs4 import BeautifulSoup
 
 
+from html import unescape
+
+def decode_html(text: str) -> str:
+    if not text:
+        return ""
+
+    # Decode tối đa 2 lần để xử lý các nguồn double-encoded
+    text = unescape(text)
+    text = unescape(text)
+
+    return text
+
 def clean_html(text):
-    """
-    Loại bỏ HTML trong RSS summary.
-    """
 
     if not text:
         return ""
 
-    return BeautifulSoup(
+    text = BeautifulSoup(
         text,
         "html.parser"
     ).get_text(" ", strip=True)
 
+    return decode_html(text)
 
 def get_article_content(url):
     """
@@ -67,17 +77,20 @@ def crawl_source(source):
         if not content:
             content = summary
 
+        title = decode_html(entry.get("title", ""))
+        content = decode_html(content)
+
         print(
             f"{source['name']} | "
             f"{len(content)} ký tự | "
-            f"{entry.get('title', '')[:60]}"
+            f"{title[:60]}"
         )
 
         results.append({
 
             "source": source["name"],
 
-            "title": entry.get("title", ""),
+            "title": title,
 
             "summary": summary,
 
@@ -124,3 +137,6 @@ if __name__ == "__main__":
 
         print("\nNội dung (500 ký tự đầu):")
         print(data[0]["content"][:500])
+
+def get_news():
+    return crawl_all()

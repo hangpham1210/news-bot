@@ -66,8 +66,8 @@ def build_message(articles, start_index, part_number, total_parts):
 
         message += (
             f"<b>{index}. {article.get('title')}</b>\n"
-            f"📰 Nguồn: {article.get('source')}\n"
-            f"📌 Chủ đề: {article.get('topic', 'Khác')}\n"
+            f"📰 Nguồn: {article.get('source')}\n\n"
+            f"<b>📝 Tóm tắt</b>\n"
         )
 
         for item in summary:

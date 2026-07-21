@@ -136,9 +136,6 @@ Ví dụ:
 Tiêu đề:
 {article["title"]}
 
-Chủ đề:
-{article.get("topic", "")}
-
 Nội dung:
 {article.get("content", "")}
 """
