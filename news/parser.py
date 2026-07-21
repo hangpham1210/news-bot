@@ -1,4 +1,5 @@
 from datetime import datetime
+from html import unescape
 
 
 def parse_news(item: dict) -> dict:
@@ -6,17 +7,30 @@ def parse_news(item: dict) -> dict:
     Chuẩn hóa dữ liệu RSS
     """
 
+    title = unescape(
+        item.get("title", "").strip()
+    )
+
+    content = unescape(
+        item.get("content")
+        or item.get("summary", "").strip()
+    )
+
+    topic = unescape(
+        item.get("category", "")
+    )
+
     return {
 
         "source": item.get("source", ""),
 
-        "title": item.get("title", "").strip(),
+        "title": title,
 
         # Dùng toàn văn do crawler lấy được; chỉ dùng RSS summary khi không có.
-        "content": item.get("content") or item.get("summary", "").strip(),
+        "content": content,
 
         # topic mặc định
-        "topic": item.get("category", ""),
+        "topic": topic,
 
         "summary": "",
 
@@ -34,7 +48,6 @@ def parse_news(item: dict) -> dict:
 
         "link": item.get("link", "")
     }
-
 
 
 def normalize_date(date_value):

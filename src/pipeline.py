@@ -26,7 +26,7 @@ from src.database.history import (
 )
 
 
-from ai.summarizer import fallback_summary, is_quota_error, summarize_article
+from ai.summarizer import fallback_summary, summarize_with_retry
 
 
 
@@ -55,7 +55,6 @@ def run_pipeline():
 
 
     new_news = []
-    gemini_unavailable = False
 
 
 
@@ -106,34 +105,28 @@ def run_pipeline():
         # 4. Gemini summarize
         # =========================
 
-        if gemini_unavailable:
+        try:
+
+            result = summarize_with_retry(news)
+
+
+            # merge kết quả Gemini vào news
+
+            if isinstance(result, dict):
+
+                news.update(result)
+
+
+
+        except Exception as error:
+
+            print(
+                "❌ Gemini error:",
+                error
+            )
+
+            # Không để lỗi AI ngăn bài viết được lưu và gửi.
             news.update(fallback_summary(news))
-            print("⚠️ Bỏ qua Gemini vì quota/API chưa khả dụng; dùng tóm tắt dự phòng.")
-        else:
-            try:
-
-                result = summarize_article(news)
-
-
-                # merge kết quả Gemini vào news
-
-                if isinstance(result, dict):
-
-                    news.update(result)
-
-
-
-            except Exception as e:
-
-                print(
-                    "❌ Gemini error:",
-                    e
-                )
-
-                news.update(fallback_summary(news))
-                if is_quota_error(e):
-                    gemini_unavailable = True
-                    print("⚠️ Gemini đã hết quota; các bài còn lại sẽ dùng tóm tắt dự phòng.")
 
 
 
@@ -154,12 +147,12 @@ def run_pipeline():
         len(new_news)
     )
 
+    unsent = get_unsent_news()
 
+    print(f"Đã lưu: {len(new_news)} bài")
+    print(f"Chưa gửi: {len(unsent)} bài")
 
-    # Bao gồm cả các bài đã lưu ở lần chạy trước nhưng Telegram chưa nhận được.
-    return get_unsent_news()
-
-
+    return unsent
 
 
 
