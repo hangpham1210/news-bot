@@ -234,3 +234,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local database and ready news file
+data/news_history.db
+data/ready_news.json

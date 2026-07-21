@@ -1,4 +1,8 @@
-name: News Bot
+name: Send News
+
+permissions:
+  actions: read
+  contents: read
 
 on:
   schedule:
@@ -7,36 +11,37 @@ on:
 
   workflow_dispatch:
 
-
 jobs:
-
-  run-news-bot:
+  send-news:
 
     runs-on: ubuntu-latest
 
-
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
-
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
 
-
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
 
+      - name: Download ready news
+        uses: dawidd6/action-download-artifact@v9
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: prepare_news.yml
+          name: ready-news
+          path: data
+          if_no_artifact_found: fail
 
-      - name: Run news bot
+      - name: Send Telegram
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
         run: |
-          python src/send_news.py
+          python src/send_prepared_news.py

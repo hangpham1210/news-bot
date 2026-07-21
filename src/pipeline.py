@@ -2,6 +2,7 @@ import sys
 import os
 
 
+
 # Cho phép import các folder ở root project
 PROJECT_ROOT = os.path.dirname(
     os.path.dirname(
@@ -17,7 +18,6 @@ from news.crawler import crawl_all
 from news.parser import parse_news
 from config.settings import MAX_NEWS_PER_RUN
 
-
 from src.database.history import (
     init_db,
     is_exist,
@@ -27,7 +27,7 @@ from src.database.history import (
 
 
 from ai.summarizer import fallback_summary, summarize_with_retry
-
+from src.storage import save_ready_news
 
 
 
@@ -147,13 +147,17 @@ def run_pipeline():
         len(new_news)
     )
 
+    from src.storage import save_ready_news
+
     unsent = get_unsent_news()
+
+    save_ready_news(unsent)
 
     print(f"Đã lưu: {len(new_news)} bài")
     print(f"Chưa gửi: {len(unsent)} bài")
+    print("💾 Đã tạo data/ready_news.json")
 
     return unsent
-
 
 
 if __name__ == "__main__":

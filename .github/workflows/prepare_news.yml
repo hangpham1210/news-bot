@@ -1,0 +1,41 @@
+name: Prepare News
+
+on:
+  schedule:
+    # 03:00 sáng Việt Nam = 20:00 UTC ngày hôm trước
+    - cron: "0 20 * * *"
+
+  workflow_dispatch:
+
+jobs:
+  prepare-news:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Prepare news
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python src/prepare_news.py
+
+      - name: Upload ready news
+        uses: actions/upload-artifact@v4
+        with:
+          name: ready-news
+          path: data/ready_news.json
+          retention-days: 1
